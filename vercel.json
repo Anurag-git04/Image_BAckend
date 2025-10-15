@@ -7,20 +7,6 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
-    {
-      "src": "/auth/(.*)",
-      "dest": "/index.js"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.js"
-    }
-  ],
   "env": {
     "NODE_ENV": "production"
   },
@@ -67,6 +53,10 @@
     },
     {
       "source": "/auth/(.*)",
+      "destination": "/index.js"
+    },
+    {
+      "source": "/(.*)",
       "destination": "/index.js"
     }
   ]
