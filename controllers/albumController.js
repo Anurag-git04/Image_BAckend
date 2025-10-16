@@ -281,6 +281,8 @@ const deleteAlbum = async (req, res) => {
       });
     }
 
+    await cloudinary.uploader.destroy(album.albumPic);
+
     const images = await Image.find({ albumId });
     for (const img of images) {
       try {
