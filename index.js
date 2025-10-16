@@ -1,35 +1,59 @@
 const express = require("express");
-const connectDB = require("./config/connectDB");
 const app = express();
 
-const cors = require("cors");
-app.use(cors());
-
-require("dotenv").config();
-
-// Connect to database
-connectDB();
-
+// Basic middleware
 app.use(express.json());
 
-app.use("/auth", require("./routes/authRouter"));
-app.use("/api/albums", require("./routes/albumRouter"));
-app.use("/api/albums", require("./routes/imageRouter"));
-
-app.get("/", (req, res) => {
-  res.send("KaviosPix Backend API is running!");
+// Enable CORS
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
 });
 
-// Global error handler
+// Basic test routes
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "KaviosPix Backend API is running!",
+    timestamp: new Date().toISOString(),
+    version: "1.0.0",
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.json({
+    success: true,
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get("/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "Test endpoint working",
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      hasMongoUri: !!process.env.MONGODB_URI,
+      hasJwtSecret: !!process.env.JWT_SECRET,
+      hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
+    },
+  });
+});
+
+// Error handler
 app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
+  console.error("Error:", err);
   res.status(500).json({
     success: false,
     message: "Internal server error",
-    error:
-      process.env.NODE_ENV === "production"
-        ? "Something went wrong"
-        : err.message,
+    error: err.message,
   });
 });
 
@@ -41,13 +65,5 @@ app.use((req, res) => {
   });
 });
 
-// Export the app for Vercel
+// Export for Vercel
 module.exports = app;
-
-// For local development
-if (require.main === module) {
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`app listening on port ${port}`);
-  });
-}
